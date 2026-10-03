@@ -15,6 +15,15 @@ One React interface for profiles, diagnostics, shared camera/voice, game hosting
 
 The hosted page stores only non-sensitive device preferences (service address and mirror setting). It does not store profiles or workouts in browser storage. Auth tokens are in memory; refreshing requires sign-in.
 
+## ⚡ Quick Start (1-Click Run)
+
+> Full instructions available in [RUN.md](file:///c:/Users/thill/Downloads/ai-fitness-source/ai-fitness/RUN.md).
+
+- **Windows**: Double-click `setup.bat` (first-time setup) then `start.bat` (launches everything and opens browser).
+- **macOS / Linux**: Run `./setup.sh` followed by `./start.sh` (or `python3 launch.py`).
+
+---
+
 ## Run on Windows
 
 Prerequisites: Node.js 22+, Python 3.11, and PostgreSQL 16 (or Docker Desktop for the included database service).
