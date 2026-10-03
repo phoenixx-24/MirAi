@@ -1,0 +1,170 @@
+/* RestCheckScreen.css */
+
+.rest-check-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(4, 7, 18, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1.5rem;
+  animation: fadeInRest 0.25s ease-out;
+}
+
+@keyframes fadeInRest {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.rest-check-card {
+  max-width: 520px;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(16, 25, 48, 0.95) 0%, rgba(9, 14, 28, 0.98) 100%);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 20px;
+  padding: 2.2rem 2rem;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85),
+              0 0 35px rgba(0, 240, 255, 0.15);
+  color: #f1f5f9;
+}
+
+.rest-badge {
+  display: inline-block;
+  padding: 0.3rem 0.9rem;
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.35);
+  border-radius: 999px;
+  color: #00f0ff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.6rem;
+}
+
+.rest-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+}
+
+.rest-description {
+  margin: 0 auto 1.6rem auto;
+  font-size: 0.88rem;
+  color: #8da2be;
+  line-height: 1.5;
+  max-width: 420px;
+}
+
+/* Gauge Circle */
+.gauge-wrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 1.4rem auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.gauge-bg-circle {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 8;
+}
+
+.gauge-progress-circle {
+  fill: none;
+  stroke: #00f0ff;
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  transition: stroke-dashoffset 0.1s linear;
+  filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+}
+
+.gauge-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-icon {
+  font-size: 1.5rem;
+}
+
+.gauge-pct {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #ffffff;
+  font-family: monospace;
+}
+
+.gauge-status-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #38bdf8;
+}
+
+/* Feedback Box */
+.rest-feedback-box {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.feedback-warn {
+  color: #fbbf24;
+}
+
+.feedback-hint {
+  color: #38bdf8;
+}
+
+.feedback-good {
+  color: #39ff14;
+}
+
+/* Skip / Manual Continue */
+.rest-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.btn-skip-rest {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  padding: 0.6rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-skip-rest:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}

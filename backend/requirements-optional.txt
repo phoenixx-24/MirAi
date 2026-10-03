@@ -1,0 +1,6 @@
+# Face matching (requires dlib build prerequisites on some Windows installs)
+face-recognition>=1.3
+# Offline speech: model must be separately downloaded to backend/models/vosk
+vosk>=0.3.45
+sounddevice>=0.5
+pyttsx3>=2.98

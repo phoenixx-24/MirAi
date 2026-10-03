@@ -1,0 +1,15 @@
+{
+  "DragonDodge": {
+    "installed": true,
+    "entry": "/games/DragonDodge/index.html",
+    "mode": "desktop"
+  },
+  "DanceTrainer": {
+    "installed": true,
+    "entry": "/games/DanceTrainer/index.html"
+  },
+  "BoxingTrainer": {
+    "installed": true,
+    "entry": "/games/BoxingTrainer/index.html"
+  }
+}

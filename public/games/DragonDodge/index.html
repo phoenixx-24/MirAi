@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <title>Dragon Dodge 3D · Motion Battle Arena</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game-container" class="game-container">
+    <!-- Top HUD Navigation -->
+    <header class="hud-header">
+      <div class="hud-left">
+        <div class="game-badge">🐉 DRAGON DODGE · MOTION BATTLE</div>
+        <div class="voice-badge" id="voiceBadge" title="STT Voice Commands Active for all buttons">
+          <span class="voice-pulse-dot"></span>
+          <span id="voiceBadgeText">🎙️ Voice Active: Say "Dodge", "Jump", "Punch"</span>
+        </div>
+      </div>
+
+      <div class="hud-center">
+        <!-- Boss Health Bar (appears during boss battle) -->
+        <div id="bossHud" class="boss-hud hidden">
+          <div class="boss-label">
+            <span class="boss-name">🐲 INFERNAL DRAGON</span>
+            <span id="bossHealthPercent" class="boss-hp-val">100%</span>
+          </div>
+          <div class="boss-hp-bar">
+            <div id="bossHpFill" class="boss-hp-fill" style="width: 100%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="hud-right">
+        <div class="stat-pill highlight">
+          <span class="label">SCORE</span>
+          <span id="hudScore" class="val">0</span>
+        </div>
+        <div class="stat-pill">
+          <span class="label">REPS</span>
+          <span id="hudReps" class="val">0</span>
+        </div>
+        <div class="stat-pill calories-pill">
+          <span class="label">ENERGY</span>
+          <span id="hudCalories" class="val">0.0</span><small>kcal</small>
+        </div>
+        <button id="btnEnlarge" class="hud-icon-btn" title="Enlarge Screen / Fullscreen (Voice: 'Enlarge')" data-voice-target="enlarge, fullscreen, maximize, bigger screen, full screen, expand screen">
+          <span id="enlargeIcon">⛶</span>
+          <span class="btn-text">Enlarge</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main 3D Canvas Stage -->
+    <div id="stage-wrapper" class="stage-wrapper">
+      <canvas id="gameCanvas"></canvas>
+
+      <!-- Live WebCam Viewfinder (Picture-in-Picture) -->
+      <div id="cameraPip" class="camera-pip" title="Live Body Motion Tracker">
+        <div class="pip-header">
+          <span class="pip-dot live"></span>
+          <span id="pipLabel">BODY TRACKER</span>
+          <button id="btnCamToggle" class="pip-toggle" title="Toggle camera preview" data-voice-target="toggle camera, camera preview">👁️</button>
+        </div>
+        <div class="pip-video-wrap">
+          <video id="webcamVideo" autoplay muted playsinline></video>
+          <canvas id="motionCanvas"></canvas>
+          <div id="laneIndicator" class="lane-indicator center">
+            <span class="lane-box left">L</span>
+            <span class="lane-box center active">C</span>
+            <span class="lane-box right">R</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- In-Game Movement Prompt Banner -->
+      <div id="modeBanner" class="mode-banner hidden"></div>
+
+      <!-- Action Feedback Popup (Floating combat text) -->
+      <div id="floatTextContainer" class="float-text-container"></div>
+
+      <!-- Start / Ready Modal -->
+      <div id="startModal" class="modal-overlay">
+        <div class="modal-card">
+          <div class="dragon-emblem">🐉</div>
+          <h1>Dragon Dodge 3D</h1>
+          <p class="modal-desc">
+            A fast-paced dodge & boss fight arena powered by your real body movement!
+          </p>
+
+          <div class="movement-guide-grid">
+            <div class="guide-item">
+              <span class="guide-icon">↔️</span>
+              <strong>Lean Left / Right</strong>
+              <small>Dodge incoming fireballs</small>
+            </div>
+            <div class="guide-item">
+              <span class="guide-icon">⬆️</span>
+              <strong>Jump Physically</strong>
+              <small>Leap over ground boulders</small>
+            </div>
+            <div class="guide-item">
+              <span class="guide-icon">⬇️</span>
+              <strong>Duck / Crouch</strong>
+              <small>Slip under high dragon flames</small>
+            </div>
+            <div class="guide-item">
+              <span class="guide-icon">🥊</span>
+              <strong>Punch / Strike</strong>
+              <small>Attack dragon with fireblasts</small>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btnStartGame" class="action-btn primary" data-voice-target="start game, start, play, begin, launch, go, dragon dodge, lets play">
+              🚀 Start Dragon Dodge
+            </button>
+            <button id="btnRecenterStart" class="action-btn secondary" data-voice-target="recenter, center, calibrate, neutral">
+              🎯 Recenter (C)
+            </button>
+            <button id="btnLaunchDesktop" class="action-btn desktop-opt" data-voice-target="desktop mode, open desktop, launch desktop, panda3d">
+              🖥️ Desktop 3D Mode
+            </button>
+          </div>
+
+          <div class="voice-help-chips">
+            <span>Voice commands active for all buttons:</span>
+            <code>"Start"</code>
+            <code>"Pause"</code>
+            <code>"Resume"</code>
+            <code>"Recenter"</code>
+            <code>"Enlarge"</code>
+            <code>"Finish"</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pause Modal -->
+      <div id="pauseModal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <div class="pause-icon">⏸️</div>
+          <h2>Workout Paused</h2>
+          <p>Catch your breath! Say "Resume" or click below whenever you're ready.</p>
+          <div class="modal-actions">
+            <button id="btnResume" class="action-btn primary" data-voice-target="resume game, resume, unpause, continue, keep going">
+              ▶ Resume Game
+            </button>
+            <button id="btnRecenterPause" class="action-btn secondary" data-voice-target="recenter, center, calibrate">
+              🎯 Recenter Posture
+            </button>
+            <button id="btnFinishPause" class="action-btn danger" data-voice-target="finish and save, finish, save, complete workout, stop workout, done">
+              💾 Finish &amp; Save Workout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Over / Victory Modal -->
+      <div id="resultModal" class="modal-overlay hidden">
+        <div class="modal-card">
+          <div id="resultEmblem" class="result-emblem">🏆</div>
+          <h2 id="resultTitle">Victory! Dragon Defeated!</h2>
+          <p id="resultSubtitle">Incredible agility and focus throughout the session.</p>
+
+          <div class="summary-stats-grid">
+            <div class="summary-cell">
+              <span class="cell-label">Final Score</span>
+              <strong id="resFinalScore" class="cell-val highlight">0</strong>
+            </div>
+            <div class="summary-cell">
+              <span class="cell-label">Total Dodges</span>
+              <strong id="resDodges" class="cell-val">0</strong>
+            </div>
+            <div class="summary-cell">
+              <span class="cell-label">Jumps &amp; Ducks</span>
+              <strong id="resJumpsDucks" class="cell-val">0</strong>
+            </div>
+            <div class="summary-cell">
+              <span class="cell-label">Punches Landed</span>
+              <strong id="resPunches" class="cell-val">0</strong>
+            </div>
+            <div class="summary-cell">
+              <span class="cell-label">Calories Burned</span>
+              <strong id="resCalories" class="cell-val">0.0 kcal</strong>
+            </div>
+            <div class="summary-cell">
+              <span class="cell-label">Active Time</span>
+              <strong id="resTime" class="cell-val">00:00</strong>
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button id="btnFinishResult" class="action-btn primary" data-voice-target="finish and save, finish, save, complete workout, save results, done">
+              💾 Save Workout &amp; View Summary
+            </button>
+            <button id="btnRestartResult" class="action-btn secondary" data-voice-target="play again, restart, retry, try again">
+              🔄 Play Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Controls & Quick Action Bar -->
+    <footer class="hud-footer">
+      <div class="footer-left">
+        <span class="hud-legend"><strong>Controls:</strong> Lean ↔️ to Dodge | Jump ⬆️ | Duck ⬇️ | Punch 🥊 | Keyboard: Arrows / Space / E</span>
+      </div>
+      <div class="footer-actions">
+        <button id="btnBottomRecenter" class="footer-btn" data-voice-target="recenter, center, calibrate">
+          🎯 Recenter
+        </button>
+        <button id="btnBottomPause" class="footer-btn" data-voice-target="pause game, pause, break, hold">
+          ⏸️ Pause
+        </button>
+        <button id="btnBottomResume" class="footer-btn hidden" data-voice-target="resume game, resume, unpause">
+          ▶️ Resume
+        </button>
+        <button id="btnBottomAttack" class="footer-btn attack" data-voice-target="punch, attack, strike, hit">
+          🥊 Attack (E)
+        </button>
+        <button id="btnBottomFinish" class="footer-btn finish" data-voice-target="finish and save, finish, save, complete workout, done">
+          💾 Finish &amp; Save
+        </button>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/games/fitness-bridge.js"></script>
+  <script src="adapter.js"></script>
+</body>
+</html>

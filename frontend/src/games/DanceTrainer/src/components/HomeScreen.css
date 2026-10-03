@@ -1,0 +1,170 @@
+/* HomeScreen.css - Concert Entrance Stage */
+
+.home-screen-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  background: radial-gradient(ellipse at bottom, #070c18 0%, #020409 80%);
+  overflow: hidden;
+}
+
+/* Atmospheric Concert Spotlights */
+.concert-spotlight-beam {
+  position: absolute;
+  top: -150px;
+  width: 450px;
+  height: 950px;
+  pointer-events: none;
+  filter: blur(60px);
+  opacity: 0.22;
+  transform-origin: top center;
+}
+
+.beam-left {
+  left: 12%;
+  background: linear-gradient(180deg, rgba(0, 240, 255, 0.7) 0%, rgba(0, 114, 255, 0) 100%);
+  transform: rotate(-25deg);
+  animation: sweepLeft 6s ease-in-out infinite alternate;
+}
+
+.beam-center {
+  left: 45%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(0, 240, 255, 0) 100%);
+  opacity: 0.16;
+}
+
+.beam-right {
+  right: 12%;
+  background: linear-gradient(180deg, rgba(191, 85, 236, 0.7) 0%, rgba(138, 43, 226, 0) 100%);
+  transform: rotate(25deg);
+  animation: sweepRight 6s ease-in-out infinite alternate;
+}
+
+@keyframes sweepLeft {
+  from { transform: rotate(-28deg); }
+  to { transform: rotate(-18deg); }
+}
+
+@keyframes sweepRight {
+  from { transform: rotate(28deg); }
+  to { transform: rotate(18deg); }
+}
+
+.ambient-stage-glow {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 300px;
+  background: radial-gradient(ellipse, rgba(0, 240, 255, 0.25) 0%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+/* Single Action Container */
+.home-single-action-wrapper {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* MIRAI in Silver Letters */
+.mirai-silver-title {
+  margin: 0 0 2.2rem 0;
+  font-family: 'Outfit', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f8fafc 18%,
+    #e2e8f0 35%,
+    #94a3b8 55%,
+    #cbd5e1 75%,
+    #ffffff 90%,
+    #f1f5f9 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 25px rgba(255, 255, 255, 0.4))
+          drop-shadow(0 0 50px rgba(203, 213, 225, 0.25));
+  animation: silverSheen 3.5s ease-in-out infinite alternate;
+}
+
+@keyframes silverSheen {
+  0% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.35))
+            drop-shadow(0 0 45px rgba(203, 213, 225, 0.2));
+    transform: scale(1);
+  }
+  100% {
+    filter: drop-shadow(0 0 32px rgba(255, 255, 255, 0.65))
+            drop-shadow(0 0 70px rgba(226, 232, 240, 0.45));
+    transform: scale(1.015);
+  }
+}
+
+.btn-start-practice-hero {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  padding: 1.45rem 3.8rem;
+  font-size: 1.35rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #00f0ff 0%, #0072ff 50%, #a855f7 100%);
+  color: #020617;
+  font-weight: 900;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 10px 40px rgba(0, 240, 255, 0.55),
+              0 0 70px rgba(0, 114, 255, 0.45),
+              0 0 100px rgba(168, 85, 247, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: startPulse 2.4s ease-in-out infinite alternate;
+}
+
+.btn-start-practice-hero .btn-icon {
+  font-size: 1.5rem;
+}
+
+.btn-start-practice-hero:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 16px 55px rgba(0, 240, 255, 0.8),
+              0 0 90px rgba(0, 114, 255, 0.65),
+              0 0 130px rgba(168, 85, 247, 0.5);
+}
+
+.btn-start-practice-hero:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+@keyframes startPulse {
+  0% {
+    box-shadow: 0 10px 35px rgba(0, 240, 255, 0.45),
+                0 0 50px rgba(0, 114, 255, 0.35);
+  }
+  100% {
+    box-shadow: 0 14px 50px rgba(0, 240, 255, 0.75),
+                0 0 85px rgba(0, 114, 255, 0.55),
+                0 0 120px rgba(168, 85, 247, 0.4);
+  }
+}
+
+@media (max-width: 680px) {
+  .btn-start-practice-hero {
+    padding: 1.15rem 2.4rem;
+    font-size: 1.1rem;
+  }
+}

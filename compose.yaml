@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fitness
+      POSTGRES_USER: fitness
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your shell or root .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - fitness_data:/var/lib/postgresql/data
+volumes:
+  fitness_data:

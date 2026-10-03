@@ -1,0 +1,130 @@
+/* ErrorScreen.css */
+
+.error-screen-container {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.error-card {
+  max-width: 540px;
+  width: 100%;
+  background: linear-gradient(135deg, rgba(20, 26, 46, 0.98) 0%, rgba(12, 16, 30, 0.98) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 20px;
+  padding: 2.4rem 2rem;
+  text-align: center;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85),
+              0 0 30px rgba(245, 158, 11, 0.12);
+  color: #f1f5f9;
+}
+
+.error-icon-box {
+  font-size: 2.8rem;
+  margin-bottom: 0.6rem;
+}
+
+.error-title {
+  margin: 0 0 0.6rem 0;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.error-message {
+  margin: 0 0 1.6rem 0;
+  font-size: 0.96rem;
+  color: #fbbf24;
+  line-height: 1.5;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  padding: 0.8rem 1.1rem;
+  border-radius: 12px;
+}
+
+.error-tips-box {
+  text-align: left;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 2rem;
+}
+
+.tips-header {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #94a3b8;
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tips-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.error-actions-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-error-primary {
+  padding: 0.85rem;
+  background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+  color: #040712;
+  font-weight: 800;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 240, 255, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-error-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 240, 255, 0.5);
+}
+
+.btn-error-secondary {
+  padding: 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-error-secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #00f0ff;
+}
+
+.btn-error-text {
+  background: transparent;
+  border: none;
+  color: #718096;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.4rem;
+  transition: color 0.2s ease;
+}
+
+.btn-error-text:hover {
+  color: #cbd5e1;
+}
