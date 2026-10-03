@@ -298,6 +298,7 @@ body {
   position: relative;
   flex: 1;
   width: 100%;
+  min-height: 380px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -306,21 +307,171 @@ body {
 }
 
 #cameraStream {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
+  display: none !important;
 }
 
 #webcamVideo {
-  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+  z-index: 1;
 }
 
 #userCanvas {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Interactive Virtual Target Mitts */
+.target-indicators {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.target-mitt {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 229, 255, 0.6);
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.25) 0%, rgba(10, 20, 36, 0.8) 75%);
+  box-shadow: 0 0 25px rgba(0, 229, 255, 0.4), inset 0 0 15px rgba(0, 229, 255, 0.3);
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0.85;
+}
+
+.target-mitt.target-lead {
+  top: 32%;
+  left: 28%;
+}
+
+.target-mitt.target-rear {
+  top: 32%;
+  right: 28%;
+  border-color: rgba(255, 145, 0, 0.7);
+  background: radial-gradient(circle, rgba(255, 145, 0, 0.25) 0%, rgba(36, 20, 10, 0.8) 75%);
+  box-shadow: 0 0 25px rgba(255, 145, 0, 0.4), inset 0 0 15px rgba(255, 145, 0, 0.3);
+}
+
+.target-mitt.target-active {
+  transform: scale(1.12);
+  opacity: 1;
+  animation: mittPulse 1s infinite alternate;
+}
+
+.target-mitt.target-hit {
+  transform: scale(1.35) !important;
+  background: rgba(0, 230, 118, 0.6) !important;
+  border-color: #00e676 !important;
+  box-shadow: 0 0 40px #00e676, inset 0 0 20px #fff !important;
+}
+
+.mitt-ring {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  animation: rotateRing 8s linear infinite;
+}
+
+.mitt-icon {
+  font-size: 26px;
+  margin-bottom: 2px;
+}
+
+.mitt-text {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(0,0,0,0.8);
+}
+
+.target-slip-indicator {
+  position: absolute;
+  bottom: 28%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(14, 20, 36, 0.85);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-cyan);
   display: none;
+}
+
+.target-slip-indicator.active {
+  display: block;
+  animation: slipBounce 1s infinite alternate;
+}
+
+@keyframes mittPulse {
+  0% { transform: scale(1.05); }
+  100% { transform: scale(1.18); box-shadow: 0 0 35px rgba(0, 229, 255, 0.7); }
+}
+
+@keyframes rotateRing {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slipBounce {
+  0% { transform: translateX(-60%); }
+  100% { transform: translateX(-40%); }
+}
+
+/* Camera Status Overlay */
+.camera-status-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 16, 0.85);
+  z-index: 12;
+  gap: 12px;
+}
+
+.status-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(0, 229, 255, 0.2);
+  border-top-color: var(--accent-cyan);
+  border-radius: 50%;
+  animation: rotateRing 0.8s linear infinite;
+}
+
+.camera-status-overlay p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Voice Activated Feedback on Buttons */
+.stt-voice-activated {
+  outline: 3px solid var(--accent-cyan) !important;
+  box-shadow: 0 0 20px var(--accent-cyan) !important;
+  transform: scale(1.04) !important;
+  transition: all 0.2s ease !important;
 }
 
 /* Movement Checkpoints Overlay */

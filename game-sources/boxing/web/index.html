@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Boxing Trainer · Voice-Controlled HD Posture Coach</title>
+  <title>AI Boxing Academy · Real Movement & AI Technique Coach</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,28 +11,26 @@
     <!-- Top HUD Navigation -->
     <header class="trainer-hud">
       <div class="hud-left">
-        <div class="trainer-badge">🥊 AI PERSONAL BOXING COACH</div>
-        <h1 id="hudLevelTitle">Level 0 · Getting Ready</h1>
-        <p id="hudLevelSubtitle">Safety, stance, and guard</p>
+        <div class="trainer-badge">🥊 AI BOXING ACADEMY · TECHNIQUE COACH</div>
+        <h1 id="hudLevelTitle">Level 1 · Stance & Guard</h1>
+        <p id="hudLevelSubtitle">Master the boxer's foundation and high guard</p>
       </div>
 
       <div class="hud-center">
-        <!-- 7-Step Step Tracker -->
+        <!-- 5-Step Stepper -->
         <div class="step-stepper" id="stepStepper">
           <div class="step-node active" data-step="1"><span>1</span> Explain</div>
           <div class="step-node" data-step="2"><span>2</span> Demo</div>
           <div class="step-node" data-step="3"><span>3</span> Ready</div>
-          <div class="step-node" data-step="4"><span>4</span> Practise</div>
-          <div class="step-node" data-step="5"><span>5</span> Check</div>
-          <div class="step-node" data-step="6"><span>6</span> Repeat</div>
-          <div class="step-node" data-step="7"><span>7</span> Review</div>
+          <div class="step-node" data-step="4"><span>4</span> Practice</div>
+          <div class="step-node" data-step="5"><span>5</span> Assessment</div>
         </div>
       </div>
 
       <div class="hud-right">
         <div class="metric-pill">
-          <span class="label">Reps</span>
-          <span class="value" id="hudReps">0 / 4</span>
+          <span class="label">Reps Cleared</span>
+          <span class="value" id="hudReps">0 / 5</span>
         </div>
         <div class="metric-pill highlight">
           <span class="label">Score</span>
@@ -45,27 +43,45 @@
       </div>
     </header>
 
-    <!-- Main Training Arena (Split Stage: User Live Camera + Coach Demonstration) -->
+    <!-- Main Training Arena -->
     <main class="arena-grid">
       <!-- Left Column: User Live Camera & Posture Diagnostics -->
       <section class="user-stage-card">
         <div class="viewport-header">
           <div class="view-tag">
-            <span class="live-dot"></span> <span id="userStageTag">👤 YOUR LIVE POSTURE ANALYSIS</span>
+            <span class="live-dot"></span> <span id="userStageTag">👤 YOUR LIVE MOVEMENT & FORM ANALYSIS</span>
           </div>
           <div class="view-toggles">
-            <button id="btnToggleCamera" class="toggle-btn active" title="Toggle Camera Feed">📷 Live Stream</button>
-            <button id="btnToggleSideView" class="toggle-btn" title="Toggle Front/Side View">🔄 Side View</button>
+            <button id="btnToggleCamera" class="toggle-btn active" data-voice="camera, toggle camera, video, live stream" title="Toggle Camera Feed">📷 Camera [Say 'Camera']</button>
+            <button id="btnToggleSideView" class="toggle-btn" data-voice="side view, front view, switch view, angle" title="Toggle Front/Side View">🔄 Side View [Say 'Side View']</button>
+            <button id="btnMute" class="toggle-btn" data-voice="mute, unmute, audio, sound, voice" title="Toggle AI Voice Audio">🔊 Audio: ON [Say 'Mute']</button>
           </div>
         </div>
 
-        <div class="user-viewport-wrapper">
-          <!-- Hardware Direct Camera Stream from Python /video_feed -->
-          <img id="cameraStream"  alt="Live Camera Video" onerror="this.style.display='none'; document.getElementById('userCanvas').style.display='block';" />
-          <video id="webcamVideo" autoplay playsinline muted style="display: none;"></video>
-          <canvas id="userCanvas" width="720" height="480" style="display: none;"></canvas>
+        <div class="user-viewport-wrapper" id="viewportWrapper">
+          <!-- Mirrored User Webcam Live Video -->
+          <video id="webcamVideo" autoplay playsinline muted></video>
+          <!-- Real-Time Skeletal Diagnostics, Trajectory Lines & Target Mitts -->
+          <canvas id="userCanvas" width="720" height="480"></canvas>
 
-          <!-- Movement Checkpoints Overlay -->
+          <!-- Interactive Virtual Target Mitts (Punch Target Overlays) -->
+          <div class="target-indicators" id="targetIndicators">
+            <div class="target-mitt target-lead" id="mittLead">
+              <span class="mitt-ring"></span>
+              <span class="mitt-icon">🥊</span>
+              <span class="mitt-text">LEAD TARGET</span>
+            </div>
+            <div class="target-mitt target-rear" id="mittRear">
+              <span class="mitt-ring"></span>
+              <span class="mitt-icon">🥊</span>
+              <span class="mitt-text">REAR TARGET</span>
+            </div>
+            <div class="target-slip-indicator" id="slipIndicator">
+              <span class="slip-arrow">⬅️ SLIP ZONE ➡️</span>
+            </div>
+          </div>
+
+          <!-- Live Posture Checkpoints Overlay -->
           <div class="checkpoint-overlay" id="checkpointOverlay">
             <div class="checkpoint-item" id="cpGuard">
               <span class="cp-icon">🛡️</span> Hands at Cheeks
@@ -81,56 +97,66 @@
             </div>
           </div>
 
-          <!-- Real-Time Voice Commentary Bar (Spoken out loud via TTS!) -->
+          <!-- Real-Time Voice Commentary Bar (Spoken aloud via TTS) -->
           <div class="commentary-bar" id="commentaryBar">
             <div class="commentary-icon" id="commentaryIcon">🗣️</div>
             <div class="commentary-body">
-              <div class="commentary-title">AI SPOKEN COMMENTARY (TTS)</div>
+              <div class="commentary-title">AI SPOKEN COACHING (TTS)</div>
               <div class="commentary-text" id="commentaryText">"Stand with feet shoulder-width, bring hands up near cheeks."</div>
             </div>
-            <button id="btnReplayAudio" class="replay-audio-btn" title="Replay spoken commentary">🔊</button>
+            <button id="btnReplayAudio" class="replay-audio-btn" data-voice="replay, say again, repeat audio, listen again" title="Replay spoken commentary">🔊 [Say 'Replay']</button>
           </div>
 
           <!-- Real-Time Feedback Banner -->
           <div class="feedback-banner" id="feedbackBanner">
-            <span id="feedbackText">Good reset. Hands up comfortably.</span>
+            <span id="feedbackText">Good reset. Hands up in guard!</span>
+          </div>
+
+          <!-- Camera Loading / Permission Banner -->
+          <div class="camera-status-overlay" id="cameraStatusOverlay" style="display: none;">
+            <div class="status-spinner"></div>
+            <p id="cameraStatusText">Connecting camera for real movement tracking...</p>
           </div>
         </div>
       </section>
 
       <!-- Right Column: Coach Alex Reference Demo & Controls -->
       <aside class="sidebar-dock">
-        <!-- Coach Alex Visualizer Card (Clean Single Model - No Ghost Limbs) -->
+        <!-- Coach Alex Visualizer Card -->
         <div class="dock-card coach-demo-card">
           <div class="card-header">
-            <h3>Coach Alex (Instructor)</h3>
-            <span class="view-mode-badge" id="viewModeTag">DEMO FORM</span>
+            <h3>Coach Alex (AI Instructor)</h3>
+            <span class="view-mode-badge" id="viewModeTag">DEMONSTRATION</span>
           </div>
           <div class="coach-canvas-wrapper">
             <canvas id="coachCanvas" width="340" height="260"></canvas>
           </div>
           <div class="coach-cue-box">
-            <div class="cue-label">CURRENT CUE</div>
+            <div class="cue-label">TACTICAL CUE</div>
             <div class="cue-text" id="coachSpeechText">"Hold your guard comfortably... balance your weight."</div>
           </div>
         </div>
 
-        <!-- Practice Rep Action Trigger (User Controls Movement - NO Auto-Advance!) -->
+        <!-- Practice Movement Action Triggers -->
         <div class="dock-card sim-card">
           <div class="card-header">
-            <h3>Movement Action</h3>
+            <h3>Movement Actions</h3>
           </div>
           <div class="sim-buttons">
-            <button id="btnPerformRep" class="sim-btn sim-correct">🥊 Perform Repetition / Check Form</button>
-            <button id="btnSimNoGuard" class="sim-btn sim-warn">⚠️ Test Low Guard Feedback</button>
+            <button id="btnPerformRep" class="sim-btn sim-correct" data-voice="punch, strike, hit, rep, check form, perform rep">
+              🥊 Check Movement / Punch [Say 'Punch']
+            </button>
+            <button id="btnSimNoGuard" class="sim-btn sim-warn" data-voice="low guard, test guard, dropped guard, test warning">
+              ⚠️ Test Low Guard Feedback [Say 'Low Guard']
+            </button>
           </div>
         </div>
 
         <!-- Curriculum Level Drawer -->
         <div class="dock-card curriculum-card">
           <div class="card-header">
-            <h3>Progressive Levels</h3>
-            <span class="curriculum-badge" id="unlockedCount">Unlocked: Level 0</span>
+            <h3>Curriculum Progression</h3>
+            <span class="curriculum-badge" id="unlockedCount">Unlocked: Level 1</span>
           </div>
           <div class="level-list" id="levelList">
             <!-- Rendered by JS -->
@@ -140,16 +166,17 @@
         <!-- Voice Command Hotkey Guide -->
         <div class="dock-card voice-guide-card">
           <div class="card-header">
-            <h3>🎙️ Hands-Free Voice Commands</h3>
+            <h3>🎙️ Hands-Free Voice Commands (STT)</h3>
           </div>
           <div class="voice-command-chips">
-            <span class="v-chip">"Go" / "Ready"</span>
-            <span class="v-chip">"Next"</span>
-            <span class="v-chip">"Repeat"</span>
-            <span class="v-chip">"Slower" / "Normal"</span>
-            <span class="v-chip">"Demo"</span>
-            <span class="v-chip">"Pause" / "Resume"</span>
-            <span class="v-chip">"Level 1..6"</span>
+            <span class="v-chip" data-voice="go">"Go" / "Ready"</span>
+            <span class="v-chip" data-voice="next">"Next"</span>
+            <span class="v-chip" data-voice="demo">"Demo"</span>
+            <span class="v-chip" data-voice="repeat">"Repeat"</span>
+            <span class="v-chip" data-voice="slower">"Slower" / "Normal"</span>
+            <span class="v-chip" data-voice="pause">"Pause" / "Resume"</span>
+            <span class="v-chip" data-voice="punch">"Punch"</span>
+            <span class="v-chip" data-voice="level 1">"Level 1..7"</span>
           </div>
         </div>
       </aside>
@@ -158,89 +185,93 @@
     <!-- Bottom Action Bar -->
     <footer class="trainer-footer">
       <div class="footer-left">
-        <button id="btnPause" class="footer-btn secondary">⏸ Pause [Say 'Pause']</button>
-        <button id="btnSlower" class="footer-btn secondary">⏱ Pace: Normal [Say 'Slower']</button>
-        <button id="btnWatchDemo" class="footer-btn secondary">👁 Watch Demo [Say 'Demo']</button>
-        <button id="btnRepeat" class="footer-btn secondary">↺ Repeat [Say 'Repeat']</button>
+        <button id="btnPause" class="footer-btn secondary" data-voice="pause, resume, wait, stop, hold on">⏸ Pause [Say 'Pause']</button>
+        <button id="btnSlower" class="footer-btn secondary" data-voice="slower, normal, slow down, pace, speed">⏱ Pace: Normal [Say 'Slower']</button>
+        <button id="btnWatchDemo" class="footer-btn secondary" data-voice="demo, watch demo, show me, demonstrate">👁 Watch Demo [Say 'Demo']</button>
+        <button id="btnRepeat" class="footer-btn secondary" data-voice="repeat, again, retry, practice again">↺ Repeat [Say 'Repeat']</button>
       </div>
       <div class="footer-right">
-        <button id="btnNextAction" class="footer-btn primary">I'm Ready → [Say 'Go']</button>
+        <button id="btnNextAction" class="footer-btn primary" data-voice="go, ready, next, start, begin, continue">I'm Ready → [Say 'Go']</button>
       </div>
     </footer>
   </div>
 
-  <!-- Readiness Check Modal -->
+  <!-- Readiness / Welcome Modal -->
   <div class="modal-backdrop" id="modalReadiness">
     <div class="modal-card">
       <div class="modal-icon">🥊</div>
-      <h2>Welcome to AI Boxing Trainer!</h2>
+      <h2>Welcome to AI Boxing Academy!</h2>
       <p class="modal-desc">
-        Your personal boxing coach powered by real-time camera posture analysis and full voice control (STT & TTS).
+        Learn real boxing technique step-by-step. Coach Alex demonstrates each move, your camera analyzes your movements in real time, and voice commands control every button!
       </p>
 
       <div class="safety-checklist">
         <div class="check-row">
-          <span class="check-icon">🎙️</span>
-          <span><strong>Hands-Free Voice:</strong> Say <em>"Go"</em>, <em>"Next"</em>, or <em>"Repeat"</em> to control the app naturally.</span>
+          <span class="check-icon">👁️</span>
+          <span><strong>1. Coach Demonstrates First:</strong> Watch Coach Alex perform the clean punch mechanics and guard return.</span>
         </div>
         <div class="check-row">
-          <span class="check-icon">📷</span>
-          <span><strong>AI Posture Analysis:</strong> Camera tracks your guard, chin tuck, and balance in real time.</span>
+          <span class="check-icon">👤</span>
+          <span><strong>2. AI Analyzes Your Movement:</strong> Your camera tracks your guard, full extension, and balance in real-time.</span>
         </div>
         <div class="check-row">
           <span class="check-icon">🗣️</span>
-          <span><strong>Spoken Commentary:</strong> If your form is right, Coach Alex says <em>"Right!"</em> and advances you. If not, he speaks aloud: <em>"Adjust this posture: ..."</em></span>
+          <span><strong>3. AI Corrects You:</strong> If your guard drops or extension is short, Coach Alex speaks aloud to correct your form.</span>
+        </div>
+        <div class="check-row">
+          <span class="check-icon">🎙️</span>
+          <span><strong>4. Voice Control (STT & TTS):</strong> Speak any command ("Go", "Next", "Demo", "Pause", "Punch") to control every button!</span>
         </div>
       </div>
 
       <div class="modal-actions">
-        <button id="btnStartWarmup" class="footer-btn primary large">I Feel Ready → [Or Say 'Go']</button>
+        <button id="btnStartWarmup" class="footer-btn primary large" data-voice="go, start, ready, begin, i feel ready">Start Boxing → [Say 'Go']</button>
       </div>
     </div>
   </div>
 
-  <!-- Assessment Modal -->
+  <!-- Level Assessment Modal -->
   <div class="modal-backdrop hidden" id="modalAssessment">
     <div class="modal-card">
       <div class="modal-icon" id="assessIcon">🎉</div>
-      <h2 id="assessTitle">Round Passed! Moving to Next Level</h2>
+      <h2 id="assessTitle">Level Cleared! Advancing to Next Level</h2>
       <p class="modal-desc" id="assessDesc">
         You demonstrated clean posture, hands in guard, and controlled technique.
       </p>
 
       <div class="assessment-stats">
         <div class="stat-box">
-          <span class="stat-num" id="assessAttempts">4 / 4</span>
-          <span class="stat-lbl">Target Reps</span>
+          <span class="stat-num" id="assessAttempts">5 / 5</span>
+          <span class="stat-lbl">Clean Reps</span>
         </div>
         <div class="stat-box">
-          <span class="stat-num" id="assessCheckpoints">4 / 4</span>
-          <span class="stat-lbl">Checkpoints Met</span>
+          <span class="stat-num" id="assessCheckpoints">100%</span>
+          <span class="stat-lbl">Form Accuracy</span>
         </div>
         <div class="stat-box">
           <span class="stat-num" id="assessGuards">100%</span>
-          <span class="stat-lbl">Guard Returns</span>
+          <span class="stat-lbl">Guard Discipline</span>
         </div>
         <div class="stat-box">
-          <span class="stat-num" id="assessScore">+140</span>
+          <span class="stat-num" id="assessScore">+175</span>
           <span class="stat-lbl">Round Score</span>
         </div>
       </div>
 
       <div class="modal-actions">
-        <button id="btnAssessRetry" class="footer-btn secondary">↺ Practice Again [Say 'Repeat']</button>
-        <button id="btnAssessProceed" class="footer-btn primary">Next Level → [Say 'Next']</button>
+        <button id="btnAssessRetry" class="footer-btn secondary" data-voice="repeat, retry, practice again, again">↺ Practice Again [Say 'Repeat']</button>
+        <button id="btnAssessProceed" class="footer-btn primary" data-voice="next, next level, proceed, advance, continue">Next Level → [Say 'Next']</button>
       </div>
     </div>
   </div>
 
-  <!-- Session Report Modal -->
+  <!-- Graduation Report Modal -->
   <div class="modal-backdrop hidden" id="modalSessionReport">
     <div class="modal-card">
       <div class="modal-icon">🏆</div>
-      <h2>Boxing Session Complete!</h2>
+      <h2>Boxing Academy Graduate!</h2>
       <p class="modal-desc">
-        Outstanding performance! You completed the full boxing curriculum with camera-based practice checkpoints.
+        Outstanding! You completed all boxing levels with verified camera movement checkpoints and master form!
       </p>
 
       <div class="assessment-stats">
@@ -249,8 +280,8 @@
           <span class="stat-lbl">Total Score</span>
         </div>
         <div class="stat-box">
-          <span class="stat-num" id="repHighestLevel">Level 6</span>
-          <span class="stat-lbl">Highest Level</span>
+          <span class="stat-num" id="repHighestLevel">Level 7</span>
+          <span class="stat-lbl">Graduation Level</span>
         </div>
         <div class="stat-box">
           <span class="stat-num" id="repDuration">00:00</span>
@@ -259,7 +290,7 @@
       </div>
 
       <div class="modal-actions">
-        <button id="btnFinishSession" class="footer-btn primary">Back to Level 0</button>
+        <button id="btnFinishSession" class="footer-btn primary" data-voice="finish, complete, back to level 1, end workout, save workout">Back to Level 1 [Say 'Finish']</button>
       </div>
     </div>
   </div>
