@@ -390,7 +390,7 @@ export default function FitnessApp(){
        if (style && (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0')) continue;
      } catch {}
 
-     const rawVoiceTargets = (el.getAttribute('data-voice-target') || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+     const rawVoiceTargets = (el.getAttribute('data-voice-target') || el.getAttribute('data-voice') || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
      const innerText = (el.innerText || el.textContent || '').toLowerCase().trim();
      const ariaLabel = (el.getAttribute('aria-label') || '').toLowerCase().trim();
      const title = (el.getAttribute('title') || '').toLowerCase().trim();
@@ -678,8 +678,12 @@ export default function FitnessApp(){
     return;
   }
 
-  if(/\b(move to boxing trainer|move to boxing|switch to boxing|open boxing trainer|start boxing trainer|play boxing trainer)\b/i.test(clean) || (selected?.id !== 'BoxingTrainer' && /\b(switch to boxing|move to boxing|i want to do boxing|play boxing trainer)\b/i.test(clean))){
-    switchWorkout('BoxingTrainer');
+  if(/\b(move to boxing trainer|move to boxing|switch to boxing|open boxing trainer|start boxing trainer|play boxing trainer|start boxing|play boxing|open boxing|boxing trainer|boxing|box|i want to box|lets box|let's box)\b/i.test(clean) || (selected?.id !== 'BoxingTrainer' && /\b(switch to boxing|move to boxing|i want to do boxing|play boxing trainer|boxing)\b/i.test(clean))){
+    if(selected?.id === 'BoxingTrainer' && page === 'Workout' && !session){
+      startGame(selected);
+    } else {
+      switchWorkout('BoxingTrainer');
+    }
     return;
   }
 
@@ -743,8 +747,9 @@ export default function FitnessApp(){
   }
 
   // START / PLAY / BEGIN / LET'S MOVE / QUICK START
-  if(/\b(start|begin|play|go|launch|lets move|let's move|quick start)\b/i.test(clean)){
+  if(/\b(start|begin|play|go|launch|lets move|let's move|quick start|start workout|start session)\b/i.test(clean)){
    if(selected && page !== 'Workout'){startGame(selected);return;}
+   else if(selected && page === 'Workout' && !session){startGame(selected);return;}
    else if(!selected && page !== 'Workout'){navigate('Workouts');return;}
   }
 

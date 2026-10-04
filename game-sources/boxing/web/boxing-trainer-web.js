@@ -341,23 +341,30 @@ let activeVoiceUtterance = null;
 
 function speakCoach(text, cancelPrevious = true) {
   if (!text || state.isMuted) return;
-  try { window.fitness.speak(text); } catch {}
+  try {
+    if (window.fitness && window.fitness.speak) {
+      window.fitness.speak(text);
+    }
+  } catch {}
 
-  if (window.speechSynthesis) {
-    try {
-      if (cancelPrevious) {
-        window.speechSynthesis.cancel();
-      }
-      const u = new SpeechSynthesisUtterance(text);
-      u.rate = 1.05;
-      u.pitch = 1.0;
-      u.lang = 'en-US';
-      const voices = window.speechSynthesis.getVoices();
-      const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('David')));
-      if (englishVoice) u.voice = englishVoice;
-      activeVoiceUtterance = u;
-      window.speechSynthesis.speak(u);
-    } catch (e) {}
+  // Only use local speech synthesis if NOT embedded in host (standalone mode)
+  if (!window.parent || window.parent === window) {
+    if (window.speechSynthesis) {
+      try {
+        if (cancelPrevious) {
+          window.speechSynthesis.cancel();
+        }
+        const u = new SpeechSynthesisUtterance(text);
+        u.rate = 1.05;
+        u.pitch = 1.0;
+        u.lang = 'en-US';
+        const voices = window.speechSynthesis.getVoices();
+        const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('David')));
+        if (englishVoice) u.voice = englishVoice;
+        activeVoiceUtterance = u;
+        window.speechSynthesis.speak(u);
+      } catch (e) {}
+    }
   }
 }
 
@@ -382,9 +389,26 @@ function clickMatchingButtonInBoxing(query) {
   const q = query.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
   if (!q) return false;
 
-  const candidates = Array.from(document.querySelectorAll(
-    'button, [role="button"], .toggle-btn, .footer-btn, .sim-btn, .replay-audio-btn, .v-chip, .level-row, .step-node'
-  ));
+  const isReadinessOpen = el.modalReadiness && !el.modalReadiness.classList.contains('hidden');
+  const isAssessmentOpen = el.modalAssessment && !el.modalAssessment.classList.contains('hidden');
+  const isReportOpen = el.modalSessionReport && !el.modalSessionReport.classList.contains('hidden');
+
+  let candidates = [];
+  if (isReadinessOpen) {
+    candidates = [el.btnStartWarmup].filter(Boolean);
+  } else if (isAssessmentOpen) {
+    candidates = [el.btnAssessProceed, el.btnAssessRetry].filter(Boolean);
+  } else if (isReportOpen) {
+    candidates = [el.btnFinishSession].filter(Boolean);
+  } else {
+    candidates = Array.from(document.querySelectorAll(
+      'button, [role="button"], .toggle-btn, .footer-btn, .sim-btn, .replay-audio-btn, .v-chip, .level-row, .step-node'
+    )).filter(item => {
+      if (item.disabled) return false;
+      const isHidden = item.closest('.hidden, [hidden], [style*="display: none"], [style*="visibility: hidden"]');
+      return !isHidden;
+    });
+  }
 
   let bestEl = null;
   let bestScore = 0;
@@ -394,7 +418,6 @@ function clickMatchingButtonInBoxing(query) {
     if (item.disabled) continue;
     const isHidden = item.closest('.hidden, [hidden], [style*="display: none"], [style*="visibility: hidden"]');
     if (isHidden) continue;
-    if (item.offsetWidth === 0 && item.offsetHeight === 0 && !item.getClientRects().length) continue;
 
     const rawText = item.innerText || item.textContent || '';
     const labels = [];
@@ -406,8 +429,8 @@ function clickMatchingButtonInBoxing(query) {
       if (hint) labels.push({ text: hint, weight: 1.5 });
     }
 
-    // 2. data-voice attribute
-    const dataVoice = item.getAttribute('data-voice');
+    // 2. data-voice / data-voice-target attributes
+    const dataVoice = item.getAttribute('data-voice-target') || item.getAttribute('data-voice');
     if (dataVoice) {
       dataVoice.split(',').forEach(v => {
         const cleaned = v.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -471,11 +494,29 @@ function handleVoiceCommand(text) {
   if (!text) return;
   const c = text.toLowerCase().trim();
   el.voiceLabel.textContent = `Heard: "${text.toUpperCase()}"`;
+  if (el.voiceDot) {
+    el.voiceDot.style.background = '#22c55e';
+    el.voiceDot.style.boxShadow = '0 0 10px #22c55e';
+  }
   setTimeout(() => {
     el.voiceLabel.textContent = 'Voice: Listening...';
+    if (el.voiceDot) {
+      el.voiceDot.style.background = '#00e5ff';
+      el.voiceDot.style.boxShadow = '0 0 8px #00e5ff';
+    }
   }, 2500);
 
-  // 1. Universal Voice Clicker on EVERY DOM button
+  // If readiness modal is open and user says ANY start/affirmation word, start immediately!
+  const isReadinessOpen = el.modalReadiness && !el.modalReadiness.classList.contains('hidden');
+  if (isReadinessOpen && /\b(start|go|ready|begin|play|yes|step|ring|warmup|boxing|lets go|let's go|i am ready|i'm ready)\b/i.test(c)) {
+    el.voiceLabel.textContent = 'Voice: Stepping into Ring!';
+    sound.playClick();
+    startTrainerFromModal();
+    speakCoach("Welcome to AI Boxing Academy! Stand in guard stance and say Go when ready!");
+    return;
+  }
+
+  // 1. Universal Voice Clicker on modal / DOM buttons
   const matchResult = clickMatchingButtonInBoxing(c);
   if (matchResult && matchResult.clicked) {
     el.voiceLabel.textContent = `Voice: Executed "${matchResult.label.toUpperCase()}"`;
@@ -483,41 +524,61 @@ function handleVoiceCommand(text) {
   }
 
   // 2. Semantic Fallbacks
-  if (/\b(start|go|ready|begin|play|proceed|continue)\b/i.test(c)) {
-    if (!el.modalReadiness.classList.contains('hidden')) {
+  if (/\b(start|go|ready|begin|play|proceed|continue|advance|next)\b/i.test(c)) {
+    if (el.modalReadiness && !el.modalReadiness.classList.contains('hidden')) {
       startTrainerFromModal();
-    } else if (!el.modalAssessment.classList.contains('hidden')) {
+    } else if (el.modalAssessment && !el.modalAssessment.classList.contains('hidden')) {
       el.btnAssessProceed.click();
+    } else if (el.modalSessionReport && !el.modalSessionReport.classList.contains('hidden')) {
+      el.btnFinishSession.click();
     } else if (state.isPaused) {
       togglePause(false);
     } else {
       advanceNextStep();
     }
-  } else if (/\b(punch|hit|strike|jab|cross|hook)\b/i.test(c)) {
+  } else if (/\b(punch|hit|strike|jab|cross|hook|combo|slip|mitt|rep|test punch)\b/i.test(c)) {
+    sound.playPunchSound();
+    triggerPunchHit(state.activeTarget);
     userPerformRep(true);
-  } else if (/\b(repeat|again|retry)\b/i.test(c)) {
-    if (!el.modalAssessment.classList.contains('hidden')) {
+  } else if (/\b(repeat|again|retry|practice again|redo)\b/i.test(c)) {
+    if (el.modalAssessment && !el.modalAssessment.classList.contains('hidden')) {
       el.btnAssessRetry.click();
     } else {
       resetLessonStats();
       startStep4Practise();
     }
-  } else if (/\b(demo|demonstrate|show me|watch)\b/i.test(c)) {
+  } else if (/\b(demo|demonstrate|show me|watch demo|watch)\b/i.test(c)) {
     startStep2Demonstrate();
-  } else if (/\b(pause|wait|stop|hold)\b/i.test(c)) {
+  } else if (/\b(pause|wait|stop|hold|break)\b/i.test(c)) {
     togglePause(true);
   } else if (/\b(resume|unpause)\b/i.test(c)) {
     togglePause(false);
   } else if (/\b(slower|slow)\b/i.test(c)) {
     setSpeedMode(true);
-  } else if (/\b(normal|faster|fast)\b/i.test(c)) {
+    speakCoach("Speed slowed.");
+  } else if (/\b(normal|faster|fast|full speed)\b/i.test(c)) {
     setSpeedMode(false);
+    speakCoach("Normal speed.");
   } else if (/\b(mute|unmute|sound|audio)\b/i.test(c)) {
     toggleMute();
+  } else if (/\b(camera|video|webcam)\b/i.test(c)) {
+    toggleCamera();
+  } else if (/\b(side view|front view|angle|view)\b/i.test(c)) {
+    setSideView(!state.showSideView);
+  } else if (/\b(replay|say again|repeat audio)\b/i.test(c)) {
+    if (state.lastSpokenCommentary) speakCoach(state.lastSpokenCommentary);
+  } else if (/\b(low guard|test guard|simulate|bad guard|no guard)\b/i.test(c)) {
+    userPerformRep(false, "Adjust your guard: keep your hands glued to your cheekbones!");
+  } else if (/\b(finish|complete|quit|exit|done)\b/i.test(c)) {
+    if (el.modalSessionReport && !el.modalSessionReport.classList.contains('hidden')) {
+      el.btnFinishSession.click();
+    } else {
+      showSessionReport();
+    }
   } else if (/\b(level\s*[1-7]|stance|jab|cross|combo|slip|hook|sparring|master)\b/i.test(c)) {
     for (let i = 0; i < CURRICULUM.length; i++) {
       const lvl = CURRICULUM[i];
-      if (c.includes(`level ${lvl.id}`) || c.includes(lvl.title.toLowerCase()) || c.includes(lvl.subtitle.toLowerCase())) {
+      if (c.includes(`level ${lvl.id}`) || c.includes(lvl.title.toLowerCase()) || c.includes(lvl.subtitle.toLowerCase()) || (lvl.id === 1 && c.includes('stance')) || (lvl.id === 2 && c.includes('jab')) || (lvl.id === 3 && c.includes('cross')) || (lvl.id === 4 && c.includes('combo')) || (lvl.id === 5 && c.includes('slip')) || (lvl.id === 6 && c.includes('hook')) || (lvl.id === 7 && c.includes('sparring'))) {
         selectLevel(i);
         break;
       }
@@ -525,8 +586,11 @@ function handleVoiceCommand(text) {
   }
 }
 
-// Browser Web Speech Recognition
 function initDirectSTT() {
+  if (window.parent && window.parent !== window) {
+    el.voiceLabel.textContent = 'Voice: Host Active [Say "Go"]';
+    return;
+  }
   const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRec) {
     el.voiceLabel.textContent = 'Voice: Click button triggers';
@@ -543,13 +607,20 @@ function initDirectSTT() {
         handleVoiceCommand(last[0].transcript);
       }
     };
-    rec.onerror = () => {};
+    rec.onerror = (err) => {
+      console.warn('Boxing standalone STT error:', err);
+    };
     rec.onend = () => {
-      try { rec.start(); } catch {}
+      if (!state.isPaused) {
+        setTimeout(() => { try { rec.start(); } catch {} }, 300);
+      }
     };
     rec.start();
     el.voiceLabel.textContent = 'Voice: Active [Say "Go"]';
-  } catch (err) {}
+  } catch (err) {
+    console.warn('Boxing STT init error:', err);
+    el.voiceLabel.textContent = 'Voice: Click button triggers';
+  }
 }
 
 // --- 7. WEBCAM & POSE ESTIMATION (REAL USER MOVEMENT) ---
@@ -1414,19 +1485,34 @@ function setupEventListeners() {
 
 // --- 12. FITNESS HOST INTEGRATION ---
 function initFitnessHost() {
-  if (!window.fitness) return;
-  window.fitness.onMessage((m) => {
-    if (m.type === 'command') {
-      handleVoiceCommand(m.text || m.raw || '');
-    } else if (m.type === 'pause') {
+  if (window.fitness) {
+    window.fitness.onMessage((m) => {
+      if (m.type === 'command') {
+        handleVoiceCommand(m.text || m.raw || '');
+      } else if (m.type === 'pause') {
+        togglePause(true);
+      } else if (m.type === 'resume') {
+        togglePause(false);
+      } else if (m.type === 'movement') {
+        if (m.landmarks) receiveNeuralPose(m.landmarks);
+      }
+    });
+    window.fitness.ready();
+  }
+
+  // Direct window postMessage listener
+  window.addEventListener('message', (e) => {
+    if (!e.data) return;
+    if (e.data.type === 'command') {
+      handleVoiceCommand(e.data.text || e.data.raw || '');
+    } else if (e.data.type === 'pause') {
       togglePause(true);
-    } else if (m.type === 'resume') {
+    } else if (e.data.type === 'resume') {
       togglePause(false);
-    } else if (m.type === 'movement') {
-      if (m.landmarks) receiveNeuralPose(m.landmarks);
+    } else if (e.data.type === 'movement' && e.data.landmarks) {
+      receiveNeuralPose(e.data.landmarks);
     }
   });
-  window.fitness.ready();
 }
 
 // Initialize on DOM Ready

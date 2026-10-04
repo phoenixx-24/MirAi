@@ -52,9 +52,9 @@
             <span class="live-dot"></span> <span id="userStageTag">👤 YOUR LIVE MOVEMENT & FORM ANALYSIS</span>
           </div>
           <div class="view-toggles">
-            <button id="btnToggleCamera" class="toggle-btn active" data-voice="camera, toggle camera, video, live stream" title="Toggle Camera Feed">📷 Camera [Say 'Camera']</button>
-            <button id="btnToggleSideView" class="toggle-btn" data-voice="side view, front view, switch view, angle" title="Toggle Front/Side View">🔄 Side View [Say 'Side View']</button>
-            <button id="btnMute" class="toggle-btn" data-voice="mute, unmute, audio, sound, voice" title="Toggle AI Voice Audio">🔊 Audio: ON [Say 'Mute']</button>
+            <button id="btnToggleCamera" class="toggle-btn active" data-voice="camera, toggle camera, video, live stream, webcam" data-voice-target="camera, toggle camera, video, live stream, webcam" title="Toggle Camera Feed">📷 Camera [Say 'Camera']</button>
+            <button id="btnToggleSideView" class="toggle-btn" data-voice="side view, front view, switch view, angle, toggle view" data-voice-target="side view, front view, switch view, angle, toggle view" title="Toggle Front/Side View">🔄 Side View [Say 'Side View']</button>
+            <button id="btnMute" class="toggle-btn" data-voice="mute, unmute, audio, sound, voice, coach voice" data-voice-target="mute, unmute, audio, sound, voice, coach voice" title="Toggle AI Voice Audio">🔊 Audio: ON [Say 'Mute']</button>
           </div>
         </div>
 
@@ -104,7 +104,7 @@
               <div class="commentary-title">AI SPOKEN COACHING (TTS)</div>
               <div class="commentary-text" id="commentaryText">"Stand with feet shoulder-width, bring hands up near cheeks."</div>
             </div>
-            <button id="btnReplayAudio" class="replay-audio-btn" data-voice="replay, say again, repeat audio, listen again" title="Replay spoken commentary">🔊 [Say 'Replay']</button>
+            <button id="btnReplayAudio" class="replay-audio-btn" data-voice="replay, say again, repeat audio, listen again, what did you say" data-voice-target="replay, say again, repeat audio, listen again, what did you say" title="Replay spoken commentary">🔊 [Say 'Replay']</button>
           </div>
 
           <!-- Real-Time Feedback Banner -->
@@ -143,10 +143,10 @@
             <h3>Movement Actions</h3>
           </div>
           <div class="sim-buttons">
-            <button id="btnPerformRep" class="sim-btn sim-correct" data-voice="punch, strike, hit, rep, check form, perform rep">
+            <button id="btnPerformRep" class="sim-btn sim-correct" data-voice="punch, strike, hit, rep, check form, perform rep, jab, cross, hook" data-voice-target="punch, strike, hit, rep, check form, perform rep, jab, cross, hook">
               🥊 Check Movement / Punch [Say 'Punch']
             </button>
-            <button id="btnSimNoGuard" class="sim-btn sim-warn" data-voice="low guard, test guard, dropped guard, test warning">
+            <button id="btnSimNoGuard" class="sim-btn sim-warn" data-voice="low guard, test guard, dropped guard, test warning, bad form, no guard" data-voice-target="low guard, test guard, dropped guard, test warning, bad form, no guard">
               ⚠️ Test Low Guard Feedback [Say 'Low Guard']
             </button>
           </div>
@@ -185,13 +185,13 @@
     <!-- Bottom Action Bar -->
     <footer class="trainer-footer">
       <div class="footer-left">
-        <button id="btnPause" class="footer-btn secondary" data-voice="pause, resume, wait, stop, hold on">⏸ Pause [Say 'Pause']</button>
-        <button id="btnSlower" class="footer-btn secondary" data-voice="slower, normal, slow down, pace, speed">⏱ Pace: Normal [Say 'Slower']</button>
-        <button id="btnWatchDemo" class="footer-btn secondary" data-voice="demo, watch demo, show me, demonstrate">👁 Watch Demo [Say 'Demo']</button>
-        <button id="btnRepeat" class="footer-btn secondary" data-voice="repeat, again, retry, practice again">↺ Repeat [Say 'Repeat']</button>
+        <button id="btnPause" class="footer-btn secondary" data-voice="pause, resume, wait, stop, hold on, take a break, unpause" data-voice-target="pause, resume, wait, stop, hold on, take a break, unpause">⏸ Pause [Say 'Pause']</button>
+        <button id="btnSlower" class="footer-btn secondary" data-voice="slower, normal, slow down, pace, speed, faster, normal speed" data-voice-target="slower, normal, slow down, pace, speed, faster, normal speed">⏱ Pace: Normal [Say 'Slower']</button>
+        <button id="btnWatchDemo" class="footer-btn secondary" data-voice="demo, watch demo, show me, demonstrate, watch" data-voice-target="demo, watch demo, show me, demonstrate, watch">👁 Watch Demo [Say 'Demo']</button>
+        <button id="btnRepeat" class="footer-btn secondary" data-voice="repeat, again, retry, practice again, redo" data-voice-target="repeat, again, retry, practice again, redo">↺ Repeat [Say 'Repeat']</button>
       </div>
       <div class="footer-right">
-        <button id="btnNextAction" class="footer-btn primary" data-voice="go, ready, next, start, begin, continue">I'm Ready → [Say 'Go']</button>
+        <button id="btnNextAction" class="footer-btn primary" data-voice="go, ready, next, start, begin, continue, next step, advance, proceed, i am ready, i'm ready" data-voice-target="go, ready, next, start, begin, continue, next step, advance, proceed, i am ready, i'm ready">I'm Ready → [Say 'Go']</button>
       </div>
     </footer>
   </div>
@@ -225,7 +225,7 @@
       </div>
 
       <div class="modal-actions">
-        <button id="btnStartWarmup" class="footer-btn primary large" data-voice="go, start, ready, begin, i feel ready">Start Boxing → [Say 'Go']</button>
+        <button id="btnStartWarmup" class="footer-btn primary large" data-voice="go, start, ready, begin, start boxing, enter ring, i feel ready, i'm ready" data-voice-target="go, start, ready, begin, start boxing, enter ring, i feel ready, i'm ready">Start Boxing → [Say 'Go']</button>
       </div>
     </div>
   </div>
@@ -259,8 +259,8 @@
       </div>
 
       <div class="modal-actions">
-        <button id="btnAssessRetry" class="footer-btn secondary" data-voice="repeat, retry, practice again, again">↺ Practice Again [Say 'Repeat']</button>
-        <button id="btnAssessProceed" class="footer-btn primary" data-voice="next, next level, proceed, advance, continue">Next Level → [Say 'Next']</button>
+        <button id="btnAssessRetry" class="footer-btn secondary" data-voice="repeat, retry, practice again, again, redo level" data-voice-target="repeat, retry, practice again, again, redo level">↺ Practice Again [Say 'Repeat']</button>
+        <button id="btnAssessProceed" class="footer-btn primary" data-voice="next, next level, proceed, advance, continue, go to next level" data-voice-target="next, next level, proceed, advance, continue, go to next level">Next Level → [Say 'Next']</button>
       </div>
     </div>
   </div>
@@ -290,7 +290,7 @@
       </div>
 
       <div class="modal-actions">
-        <button id="btnFinishSession" class="footer-btn primary" data-voice="finish, complete, back to level 1, end workout, save workout">Back to Level 1 [Say 'Finish']</button>
+        <button id="btnFinishSession" class="footer-btn primary" data-voice="finish, complete, back to level 1, end workout, save workout, graduate" data-voice-target="finish, complete, back to level 1, end workout, save workout, graduate">Back to Level 1 [Say 'Finish']</button>
       </div>
     </div>
   </div>
