@@ -337,14 +337,8 @@ class Runtime {
     this.speaking = true;
     this.lastSpokenText = lower;
 
-    // Abort active recognition while TTS is speaking to prevent microphone from hearing assistant audio
-    if (this.recognition) {
-      try {
-        this.recognition.abort();
-      } catch {}
-      this.active = false;
-      this.starting = false;
-    }
+    // Do not abort recognition; let onresult discard echo while this.speaking is true
+    // This eliminates reconnection delay so user commands (like "Go") are captured immediately when speech ends
 
     const u = new SpeechSynthesisUtterance(text);
     this.currentUtterance = u;
@@ -376,14 +370,10 @@ class Runtime {
       this.currentUtterance = null;
       window._activeUtterance = null;
       if (this.wanted) {
-        clearTimeout(this.restartTimer);
-        // Brief 150ms cooldown after speech completes before listening for user commands
-        this.restartTimer = setTimeout(() => {
-          if (this.wanted && !this.active && !this.starting && !this.speaking) {
-            this.onStatus('Listening');
-            this._startRecognition();
-          }
-        }, 150);
+        this.onStatus('Listening');
+        if (!this.active && !this.starting) {
+          this._startRecognition();
+        }
       } else {
         this.onStatus('Voice off');
       }
@@ -392,7 +382,7 @@ class Runtime {
     u.onend = finish;
     u.onerror = finish;
 
-    const estimatedDuration = Math.max(1200, text.length * 80 + 800);
+    const estimatedDuration = Math.max(1000, Math.min(5000, text.length * 45 + 500));
     this.speakingWatchdog = setTimeout(() => {
       if (this.speaking) finish();
     }, estimatedDuration);

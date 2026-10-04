@@ -950,7 +950,9 @@ function startStep1Explain() {
   el.userStageTag.textContent = `${lvl.title.toUpperCase()} · TECHNIQUE BREAKDOWN`;
   el.coachSpeechText.textContent = `"${lvl.cue}"`;
   updateCommentary(`${lvl.title}. ${lvl.explainText}`);
-  el.btnNextAction.textContent = "Watch Demonstration → [Say 'Next']";
+  el.btnNextAction.textContent = "Watch Demonstration → [Say 'Go']";
+  el.btnNextAction.setAttribute('data-voice', "go, start, ready, next, demo, demonstrate, watch demo");
+  el.btnNextAction.setAttribute('data-voice-target', "go, start, ready, next, demo, demonstrate, watch demo");
 }
 
 // Step 2: Demonstrate (AI Coach Alex Demonstrates Clean Mechanics)
@@ -962,6 +964,8 @@ function startStep2Demonstrate() {
   el.coachSpeechText.textContent = `"${lvl.cue}"`;
   updateCommentary(`Watch Coach Alex demonstrate ${lvl.title}. ${lvl.cue}. Notice the clean snap back to guard!`);
   el.btnNextAction.textContent = "I'm Ready to Practice → [Say 'Go']";
+  el.btnNextAction.setAttribute('data-voice', "go, start, ready, practice, next, continue, i am ready, i'm ready");
+  el.btnNextAction.setAttribute('data-voice-target', "go, start, ready, practice, next, continue, i am ready, i'm ready");
 }
 
 // Step 3: Ready (User Assumes Stance)
@@ -972,6 +976,8 @@ function startStep3Ready() {
   el.userStageTag.textContent = "STEP 3 · ASSUME BOXING STANCE & GUARD";
   updateCommentary("Assume your boxing guard stance in front of the camera. Hands near your cheekbones, chin tucked. Say 'Go' when ready!");
   el.btnNextAction.textContent = "Begin Practice → [Say 'Go']";
+  el.btnNextAction.setAttribute('data-voice', "go, start, ready, begin, practice, next, continue");
+  el.btnNextAction.setAttribute('data-voice-target', "go, start, ready, begin, practice, next, continue");
 }
 
 // Step 4: Practice (Live User Movement Evaluation & Real-Time Correction)
@@ -981,7 +987,9 @@ function startStep4Practise() {
   el.viewModeTag.textContent = "PRACTICE MODE";
   el.userStageTag.textContent = `STEP 4 · LIVE PRACTICE (${state.cleanReps} / ${lvl.targetReps} Clean Reps)`;
   updateCommentary(`Practice mode: ${lvl.cue}. Deliver your movement towards the active target!`);
-  el.btnNextAction.textContent = "Next Step → [Say 'Next']";
+  el.btnNextAction.textContent = "Punch Target → [Say 'Punch' or 'Go']";
+  el.btnNextAction.setAttribute('data-voice', "punch, hit, strike, next, rep, go");
+  el.btnNextAction.setAttribute('data-voice-target', "punch, hit, strike, next, rep, go");
   updateActiveTargetDisplay();
 }
 
@@ -1065,6 +1073,11 @@ function startStep5Review() {
 
 function advanceNextStep() {
   if (state.isPaused) return;
+  // If readiness modal is still open, ANY advance/go command enters the ring and starts
+  if (el.modalReadiness && !el.modalReadiness.classList.contains('hidden')) {
+    startTrainerFromModal();
+    return;
+  }
   if (state.currentStep === 1) startStep2Demonstrate();
   else if (state.currentStep === 2) startStep3Ready();
   else if (state.currentStep === 3) startStep4Practise();
