@@ -23,8 +23,8 @@ export default function RestCheckScreen({ poseAccuracy = 0, isPersonDetected = f
     if (isLocked) return;
 
     const now = performance.now();
-    const REQUIRED_HOLD_MS = 1400; // 1.4s steady hold
-    const MATCH_THRESHOLD = 68; // 68% match with rest pose
+    const REQUIRED_HOLD_MS = 1000; // 1.0s steady hold
+    const MATCH_THRESHOLD = 45; // Welcoming match threshold for neutral rest stance
 
     if (isPersonDetected && poseAccuracy >= MATCH_THRESHOLD) {
       if (!holdStartTimeRef.current) {

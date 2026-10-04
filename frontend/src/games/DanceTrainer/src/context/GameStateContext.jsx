@@ -146,22 +146,33 @@ export function GameStateProvider({ children, initialGameState = GAME_STATES.HOM
     }
   }, [selectDance, transitionTo, resumeGame, pauseGame]);
 
+  const transitionToRef = useRef(transitionTo);
+  transitionToRef.current = transitionTo;
+  const resumeGameRef = useRef(resumeGame);
+  resumeGameRef.current = resumeGame;
+  const handleDanceCommandRef = useRef(handleDanceCommand);
+  handleDanceCommandRef.current = handleDanceCommand;
+  const hasGreetedRef = useRef(false);
+
   useEffect(() => {
     const f = typeof window !== 'undefined' ? window.fitness : null;
     if (!f) return;
     const unsubscribe = f.onMessage(m => {
       if (['pause', 'stop'].includes(m.type) || (m.type === 'initialize' && m.paused)) {
-        if (gameStateRef.current !== GAME_STATES.PAUSED) transitionTo(GAME_STATES.PAUSED);
+        if (gameStateRef.current !== GAME_STATES.PAUSED) transitionToRef.current(GAME_STATES.PAUSED);
       }
-      if (m.type === 'resume' || (m.type === 'initialize' && !m.paused)) resumeGame();
-      if (m.type === 'command') handleDanceCommand(m.text || m.raw || '');
+      if (m.type === 'resume' || (m.type === 'initialize' && !m.paused)) resumeGameRef.current();
+      if (m.type === 'command') handleDanceCommandRef.current(m.text || m.raw || '');
       if (m.type === 'initialize') {
-        f.speak("Welcome to Dance Trainer. Say Start or pick a routine to dance.");
+        if (!hasGreetedRef.current) {
+          hasGreetedRef.current = true;
+          f.speak("Welcome to Dance Trainer. Say Start or pick a routine to dance.");
+        }
       }
     });
     f.ready();
     return unsubscribe;
-  }, [transitionTo, resumeGame, handleDanceCommand]);
+  }, []);
 
   // Error handling dispatch
   const reportError = useCallback((friendlyMsg) => {

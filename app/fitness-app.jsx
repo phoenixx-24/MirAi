@@ -673,17 +673,17 @@ export default function FitnessApp(){
     return;
   }
 
-  if(/\b(move to ai dance trainer|move to dance trainer|move to dance|switch to dance)\b/i.test(clean) || (selected?.id !== 'DanceTrainer' && /\b(ai dance trainer|dance trainer|i want to dance|dance)\b/i.test(clean))){
+  if(/\b(move to ai dance trainer|move to dance trainer|move to dance|switch to dance|open dance trainer|start dance trainer|play dance trainer)\b/i.test(clean) || (selected?.id !== 'DanceTrainer' && /\b(switch to dance|move to dance|i want to dance|play dance trainer)\b/i.test(clean))){
     switchWorkout('DanceTrainer');
     return;
   }
 
-  if(/\b(move to boxing trainer|move to boxing|switch to boxing|i want to do boxing)\b/i.test(clean) || (selected?.id !== 'BoxingTrainer' && /\b(boxing trainer|boxing)\b/i.test(clean))){
+  if(/\b(move to boxing trainer|move to boxing|switch to boxing|open boxing trainer|start boxing trainer|play boxing trainer)\b/i.test(clean) || (selected?.id !== 'BoxingTrainer' && /\b(switch to boxing|move to boxing|i want to do boxing|play boxing trainer)\b/i.test(clean))){
     switchWorkout('BoxingTrainer');
     return;
   }
 
-  if(/\b(move to dragon dodge|move to dodge|switch to dragon dodge|switch to dodge)\b/i.test(clean) || (selected?.id !== 'DragonDodge' && /\b(dragon dodge|dodge)\b/i.test(clean))){
+  if(/\b(move to dragon dodge|move to dodge|switch to dragon dodge|switch to dodge|open dragon dodge|start dragon dodge)\b/i.test(clean) || (selected?.id !== 'DragonDodge' && /\b(switch to dragon dodge|move to dragon dodge|play dragon dodge)\b/i.test(clean))){
     switchWorkout('DragonDodge');
     return;
   }

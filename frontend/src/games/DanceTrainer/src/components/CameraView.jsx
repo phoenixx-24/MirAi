@@ -3,30 +3,17 @@ import { useCamera } from '../hooks/useCamera';
 import './CameraView.css';
 
 /**
- * Reusable Camera Component for AI Dance Trainer
- * 
- * Props:
- * @param {string} [title="Dancer Webcam Feed"] - Header label
- * @param {function} [onStreamReady] - Callback invoked with MediaStream
- * @param {function} [onStreamStopped] - Callback invoked when stream ends
- * @param {React.ReactNode} [overlay] - Static overlay node
- * @param {function} [renderOverlay] - Render prop `({ videoRef, isStreaming, isMirrored }) => React.ReactNode`
- * @param {boolean} [showFlipControl=true] - Toggle to flip/mirror camera feed
- * @param {object} [camera] - Optional external useCamera instance to lift state up
+ * Core Camera View component.
+ * Renders video, overlay, and controls for a given camera controller instance.
  */
-export default function CameraView({
+function CameraViewCore({
   title = 'Dancer Webcam Feed',
-  onStreamReady,
-  onStreamStopped,
   onError,
   overlay,
   renderOverlay,
   showFlipControl = true,
   camera,
 }) {
-  const internalCamera = useCamera({ onStreamReady, onStreamStopped });
-  const activeCamera = camera || internalCamera;
-
   const {
     videoRef,
     isStreaming,
@@ -38,7 +25,7 @@ export default function CameraView({
     stopCamera,
     toggleMirror,
     clearError,
-  } = activeCamera;
+  } = camera;
 
   const [resolutionInfo, setResolutionInfo] = useState(null);
 
@@ -48,7 +35,6 @@ export default function CameraView({
     }
   }, [error, onError]);
 
-  // When metadata loads, capture actual video dimensions
   const handleLoadedMetadata = () => {
     if (videoRef.current) {
       const { videoWidth, videoHeight } = videoRef.current;
@@ -118,7 +104,7 @@ export default function CameraView({
             <div className="camera-placeholder">
               <h3 className="placeholder-title">Webcam Inactive</h3>
               <p className="placeholder-description">
-                Click <strong>Start Camera</strong> below to begin. Video frames are processed locally in your browser and are never stored or transmitted.
+                Click <strong>Start Camera</strong> below to begin. Video frames are processed locally in your browser.
               </p>
               <button
                 type="button"
@@ -198,10 +184,25 @@ export default function CameraView({
 
         <div className="controls-status-hint">
           {isStreaming
-            ? 'Webcam active • MediaPipe AI Pose Tracking engaged'
-            : 'Webcam offline • Ready to start'}
+            ? 'Camera active. Position yourself so your upper body is clearly visible.'
+            : 'Stand back so your head, arms, and torso are inside the frame.'}
         </div>
       </div>
     </section>
   );
+}
+
+function CameraViewWithInternalHook(props) {
+  const internalCamera = useCamera({
+    onStreamReady: props.onStreamReady,
+    onStreamStopped: props.onStreamStopped,
+  });
+  return <CameraViewCore {...props} camera={internalCamera} />;
+}
+
+export default function CameraView(props) {
+  if (props.camera) {
+    return <CameraViewCore {...props} />;
+  }
+  return <CameraViewWithInternalHook {...props} />;
 }

@@ -2,22 +2,30 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 
 /**
  * Custom hook to manage webcam streams, permissions, and device lifecycle.
- * Handles permission states gracefully and guarantees proper track cleanup.
+ * Handles permission states gracefully, prevents duplicate loop re-starts,
+ * and guarantees proper video attachment and track cleanup.
  */
 export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = true } = {}) {
   const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const onStreamReadyRef = useRef(onStreamReady);
+  onStreamReadyRef.current = onStreamReady;
+  const onStreamStoppedRef = useRef(onStreamStopped);
+  onStreamStoppedRef.current = onStreamStopped;
+
   const [stream, setStream] = useState(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isMirrored, setIsMirrored] = useState(defaultMirrored);
   const [error, setError] = useState(null);
-  const [permissionStatus, setPermissionStatus] = useState('idle'); // 'idle' | 'prompt' | 'granted' | 'denied' | 'error' | 'unsupported'
+  const [permissionStatus, setPermissionStatus] = useState('idle');
 
   // Stop camera and cleanup tracks
   const stopCamera = useCallback(() => {
-    if (stream && !(typeof window !== 'undefined' && window.fitness?.getCamera)) {
-      stream.getTracks().forEach((track) => {
-        track.stop();
+    const curStream = streamRef.current;
+    if (curStream && !(typeof window !== 'undefined' && window.fitness?.getCamera)) {
+      curStream.getTracks().forEach((track) => {
+        try { track.stop(); } catch {}
       });
     }
 
@@ -25,14 +33,15 @@ export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = tr
       videoRef.current.srcObject = null;
     }
 
+    streamRef.current = null;
     setStream(null);
     setIsStreaming(false);
     setIsLoading(false);
 
-    if (onStreamStopped) {
-      onStreamStopped();
+    if (onStreamStoppedRef.current) {
+      onStreamStoppedRef.current();
     }
-  }, [stream, onStreamStopped]);
+  }, []);
 
   // Start camera with requested constraints
   const startCamera = useCallback(async (constraints = {
@@ -43,9 +52,18 @@ export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = tr
     },
     audio: false,
   }) => {
+    // If active stream already exists in memory, re-attach to video element immediately
+    if (streamRef.current && streamRef.current.active) {
+      setIsStreaming(true);
+      if (videoRef.current && videoRef.current.srcObject !== streamRef.current) {
+        videoRef.current.srcObject = streamRef.current;
+        videoRef.current.play().catch(() => {});
+      }
+      return;
+    }
+
     setError(null);
 
-    // Check if mediaDevices API is supported in browser
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       const unsupportedMsg = 'Webcam access is not supported in this browser environment.';
       setError(unsupportedMsg);
@@ -57,11 +75,6 @@ export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = tr
     setPermissionStatus('prompt');
 
     try {
-      // Clean up previous stream if any (never stop tracks if using host fitness camera)
-      if (stream && !(typeof window !== 'undefined' && window.fitness?.getCamera)) {
-        stream.getTracks().forEach((t) => t.stop());
-      }
-
       let mediaStream = null;
       if (typeof window !== 'undefined' && window.fitness?.getCamera) {
         try {
@@ -79,6 +92,7 @@ export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = tr
         throw new Error('Unable to acquire camera video stream.');
       }
 
+      streamRef.current = mediaStream;
       setStream(mediaStream);
       setIsStreaming(true);
       setPermissionStatus('granted');
@@ -86,33 +100,28 @@ export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = tr
 
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
-        // Some mobile/modern browsers require explicit play()
         videoRef.current.play().catch((playErr) => {
-          console.warn('Auto-play was prevented by browser policy:', playErr);
+          console.warn('Auto-play notice:', playErr);
         });
       }
 
-      if (onStreamReady) {
-        onStreamReady(mediaStream);
+      if (onStreamReadyRef.current) {
+        onStreamReadyRef.current(mediaStream);
       }
     } catch (err) {
       setIsLoading(false);
       setIsStreaming(false);
 
-      let userFriendlyMessage = 'Could not access the camera. Please try again.';
-
+      let userFriendlyMessage = 'Could not access the camera. Please check permissions.';
       if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
         setPermissionStatus('denied');
-        userFriendlyMessage = 'Camera permission was denied. Please allow camera access in your browser settings to continue.';
+        userFriendlyMessage = 'Camera permission was denied. Please allow camera access in your browser.';
       } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
         setPermissionStatus('error');
-        userFriendlyMessage = 'No camera device found. Please connect a webcam and retry.';
+        userFriendlyMessage = 'No camera device found. Please connect a webcam.';
       } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
         setPermissionStatus('error');
-        userFriendlyMessage = 'Camera is currently in use by another application or tab.';
-      } else if (err.name === 'OverconstrainedError') {
-        setPermissionStatus('error');
-        userFriendlyMessage = 'Requested camera resolution is not supported by your hardware.';
+        userFriendlyMessage = 'Camera is currently in use by another tab or app.';
       } else {
         setPermissionStatus('error');
         userFriendlyMessage = err.message || userFriendlyMessage;
@@ -120,25 +129,32 @@ export function useCamera({ onStreamReady, onStreamStopped, defaultMirrored = tr
 
       setError(userFriendlyMessage);
     }
-  }, [stream, onStreamReady]);
+  }, []);
 
   const toggleMirror = useCallback(() => {
     setIsMirrored((prev) => !prev);
   }, []);
 
-  // Always start camera when mounted
+  // Re-attach video stream if video element re-mounts
+  useEffect(() => {
+    if (videoRef.current && stream && videoRef.current.srcObject !== stream) {
+      videoRef.current.srcObject = stream;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [stream]);
+
+  // Start camera once on mount
   useEffect(() => {
     startCamera();
-  }, [startCamera]);
-
-  // Cleanup tracks automatically when component unmounts
-  useEffect(() => {
     return () => {
-      if (stream && !(typeof window !== 'undefined' && window.fitness?.getCamera)) {
-        stream.getTracks().forEach((track) => track.stop());
+      // Don't stop tracks if using host fitness camera
+      if (streamRef.current && !(typeof window !== 'undefined' && window.fitness?.getCamera)) {
+        streamRef.current.getTracks().forEach((track) => {
+          try { track.stop(); } catch {}
+        });
       }
     };
-  }, [stream]);
+  }, [startCamera]);
 
   return {
     videoRef,
